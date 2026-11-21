@@ -1,0 +1,36 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Login - My Blog</title>
+</head>
+<body>
+
+    <h1>Login</h1>
+
+    {% if form.errors %}
+        <p>Invalid username or password. Try again.</p>
+    {% endif %}
+
+    <form method="POST">
+        {% csrf_token %}
+
+        <p>
+            <label>Username:</label>
+            {{ form.username }}
+        </p>
+
+        <p>
+            <label>Password:</label>
+            {{ form.password }}
+        </p>
+
+        <input type="hidden" name="next" value="{{ next }}">
+
+        <button type="submit">Login</button>
+    </form>
+
+    <a href="/">Back to Home</a>
+
+</body>
+</html>

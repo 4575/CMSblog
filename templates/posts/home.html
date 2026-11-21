@@ -1,0 +1,40 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>My Blog CMS</title>
+</head>
+<body>
+{% if user.is_authenticated %}
+    <p>Welcome, {{ user.username }}!</p>
+    <form method="POST" action="{% url 'logout' %}">
+        {% csrf_token %}
+        <button type="submit">Logout</button>
+    </form>
+{% else %}
+    <a href="{% url 'login' %}">Login</a>
+{% endif %}
+
+    <h1>Welcome to My Blog</h1>
+
+    {% for post in posts %}
+        <div>
+            <h2>{{ post.title }}</h2>
+            {% if post.image %}
+    <img src="{{ post.image.url }}" width="300">
+{% endif %}
+            <p>{{ post.content|truncatewords:25 }}</p>
+
+            <a href="{% url 'post-detail-page' post.id %}">
+                Read More
+            </a>
+
+            <p>Views: {{ post.views_count }}</p>
+        </div>
+        <hr>
+    {% empty %}
+        <p>No blog posts available.</p>
+    {% endfor %}
+
+</body>
+</html>
