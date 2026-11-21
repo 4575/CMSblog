@@ -1,89 +1,158 @@
 
-<!DOCTYPE html>
-<html>
-<head>
-    <title>{{ post.title }}</title>
-</head>
-<body>
-{% if user.is_authenticated %}
-    <p>Welcome, {{ user.username }}!</p>
-    <form method="POST" action="{% url 'logout' %}">
-        {% csrf_token %}
-        <button type="submit">Logout</button>
-    </form>
-{% else %}
-    <a href="{% url 'login' %}">Login</a>
-{% endif %}
+{% extends 'base.html' %}
 
-    <a href="/">Back to Home</a>
+{% block title %}{{ post.title }} | The Daily Journal{% endblock %}
 
-    <h1>{{ post.title }}</h1>
-    {% if post.image %}
-    <img src="{{ post.image.url }}" width="500">
-{% endif %}
+{% block content %}
 
-    <p>Written by: {{ post.author.username }}</p>
+<div class="container py-5">
 
-    <p>{{ post.content }}</p>
+    <div class="row justify-content-center">
+        <div class="col-lg-9">
 
-    <p>Views: {{ post.views_count }}</p>
+            <a href="{% url 'home' %}" class="text-decoration-none text-muted">
+                ← Back to Articles
+            </a>
 
+            <article class="article mt-4">
 
-<hr>
+                <p class="text-uppercase fw-bold small mb-3"
+                   style="letter-spacing:2px; color:#a36b3f;">
+                    FEATURED ARTICLE
+                </p>
 
+                <h1>{{ post.title }}</h1>
 
-<hr>
+                <div class="d-flex flex-wrap gap-3 text-muted mt-3">
+                    <span>By {{ post.author.username }}</span>
+                    <span>{{ post.created_at|date:"M d, Y" }}</span>
+                    <span>{{ post.views_count }} views</span>
+                </div>
 
-<h2>Likes: {{ likes_count }}</h2>
+                {% if post.image %}
+                    <img src="{{ post.image.url }}"
+                         class="article-image"
+                         alt="{{ post.title }}">
+                {% endif %}
 
-{% if user.is_authenticated %}
+                <div class="article-content mt-4">
+                    {{ post.content }}
+                </div>
 
-    <form method="POST" action="{% url 'toggle-like' post.id %}">
-        {% csrf_token %}
+                <hr class="my-5">
 
-        {% if user_has_liked %}
-            <button type="submit">Unlike</button>
-        {% else %}
-            <button type="submit">Like</button>
-        {% endif %}
-    </form>
+                <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
 
-{% else %}
-    <p>Please log in to like this post.</p>
-{% endif %}
+                    <h4 class="section-title mb-0">
+                        ❤️ {{ likes_count }} Likes
+                    </h4>
 
+                    {% if user.is_authenticated %}
+                        <form method="POST" action="{% url 'toggle-like' post.id %}">
+                            {% csrf_token %}
 
-<h2>Comments</h2>
+                            {% if user_has_liked %}
+                                <button class="btn btn-outline-dark">
+                                    Unlike
+                                </button>
+                            {% else %}
+                                <button class="btn btn-journal">
+                                    Like Article
+                                </button>
+                            {% endif %}
+                        </form>
+                    {% else %}
+                        <a href="{% url 'login' %}" class="btn btn-journal">
+                            Login to Like
+                        </a>
+                    {% endif %}
 
-{% for comment in comments %}
-    <div>
-        <strong>{{ comment.user.username }}</strong>
-        <p>{{ comment.content }}</p>
-        <hr>
+                </div>
+
+            </article>
+
+            <!-- COMMENTS -->
+
+            <section class="mt-5">
+
+                <h2 class="section-title mb-4">
+                    Reader Comments
+                </h2>
+
+                {% for comment in comments %}
+
+                    <div class="bg-white border rounded-3 p-4 mb-3">
+
+                        <h6 class="fw-bold">
+                            {{ comment.user.username }}
+                        </h6>
+
+                        <p class="mb-0 text-muted">
+                            {{ comment.content }}
+                        </p>
+
+                        <small class="text-muted">
+                            {{ comment.created_at|date:"M d, Y" }}
+                        </small>
+
+                    </div>
+
+                {% empty %}
+
+                    <p class="text-muted">
+                        No comments yet. Be the first to share your thoughts!
+                    </p>
+
+                {% endfor %}
+
+                <!-- COMMENT FORM -->
+
+                <div class="bg-white border rounded-3 p-4 mt-4">
+
+                    <h4 class="section-title mb-3">
+                        Leave a Comment
+                    </h4>
+
+                    {% if user.is_authenticated %}
+
+                        <form method="POST">
+                            {% csrf_token %}
+
+                            <textarea
+                                name="content"
+                                class="form-control mb-3"
+                                rows="4"
+                                placeholder="Write your thoughts..."
+                                required></textarea>
+
+                            <button type="submit" class="btn btn-journal">
+                                Submit Comment
+                            </button>
+                        </form>
+
+                        <small class="text-muted d-block mt-2">
+                            Your comment may require admin approval before appearing.
+                        </small>
+
+                    {% else %}
+
+                        <p class="text-muted">
+                            Please log in to leave a comment.
+                        </p>
+
+                        <a href="{% url 'login' %}" class="btn btn-journal">
+                            Login
+                        </a>
+
+                    {% endif %}
+
+                </div>
+
+            </section>
+
+        </div>
     </div>
-{% empty %}
-    <p>No comments yet. Be the first to comment!</p>
-{% endfor %}
 
-<h3>Leave a comment</h3>
+</div>
 
-{% if user.is_authenticated %}
-    <form method="POST">
-        {% csrf_token %}
-
-        <textarea
-            name="content"
-            placeholder="Write your comment..."
-            required
-        ></textarea>
-
-        <br><br>
-
-        <button type="submit">Submit Comment</button>
-    </form>
-{% else %}
-    <p>Please log in to leave a comment.</p>
-{% endif %}
-
-</body>
-</html>
+{% endblock %}
